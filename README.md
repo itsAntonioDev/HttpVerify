@@ -115,12 +115,6 @@ O arquivo mantém os detalhes técnicos das falhas para diagnóstico.
 * Discord Webhook
 * Logging
 
-## Objetivo
 
-Projeto desenvolvido para praticar **monitoramento, automação, logging, integração com webhooks e conceitos de DevOps**.
-
-## Autor
-
-**Antonio**
 
 [devantonio.com.br](https://devantonio.com.br)
