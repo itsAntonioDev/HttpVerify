@@ -40,8 +40,6 @@ API_PROJECTS_URL=
 
 `API_PROJECTS_URL` é opcional. Sem ela, os serviços são carregados de `SERVICES` no código.
 
-> Não versione o arquivo `.env`.
-
 ### Serviços
 
 ```python
