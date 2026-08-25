@@ -1,41 +1,126 @@
 # HttpVerify
 
-Script em Python que monitora se sites/serviços estão no ar e envia alertas no Discord quando algo cai.
+Monitor simples de disponibilidade HTTP desenvolvido em Python.
+
+O HttpVerify verifica serviços em intervalos definidos, mede o tempo de resposta, registra eventos em log e envia alertas para o Discord quando um serviço apresenta falha.
 
 ## Funcionalidades
 
-- Checagem periódica de URLs
-- Log em arquivo (`httpverify.log`)
-- Alerta automático no Discord via webhook (só quando dá erro)
+* Monitoramento periódico de URLs
+* Verificação de status HTTP
+* Medição de latência
+* Logging em arquivo
+* Alertas via Discord Webhook
+* Configuração por `.env`
+* Carregamento opcional de serviços por API
+* Fallback para serviços configurados localmente
+
+## Fluxo
+
+```text
+Serviço → Requisição HTTP → Status
+                         ├─ OK
+                         └─ Falha → Log + Discord
+```
 
 ## Configuração
 
-Crie um arquivo `.env` na raiz do projeto:
+Instale as dependências:
 
-```
-DISCORD_WEBHOOK_URL=sua_url_do_webhook_aqui
+```bash
+pip install -r requirements.txt
 ```
 
-Edite a lista de sites no `HttpVerify.py`:
+Crie um `.env` na raiz:
+
+```env
+DISCORD_WEBHOOK_URL=sua_url_do_webhook
+API_PROJECTS_URL=
+```
+
+`API_PROJECTS_URL` é opcional. Sem ela, os serviços são carregados de `SERVICES` no código.
+
+> Não versione o arquivo `.env`.
+
+### Serviços
 
 ```python
 SERVICES = [
-    {"name": "Meu Site", "url": "https://meusite.com.br"},
+    {
+        "name": "Meu Portfólio",
+        "url": "https://devantonio.com.br"
+    },
+    {
+        "name": "Google",
+        "url": "https://google.com"
+    }
 ]
 ```
 
-## Uso
+### API de serviços
+
+Quando configurada, a API deve retornar:
+
+```json
+[
+    {
+        "name": "Tasky",
+        "url": "https://tasky.com"
+    },
+    {
+        "name": "MoneyControl",
+        "url": "https://moneycontrol.com"
+    }
+]
+```
+
+Se a API falhar, o monitor utiliza a lista local como fallback.
+
+## Execução
 
 ```bash
 python HttpVerify.py
 ```
 
+Configuração padrão:
+
+```python
+TIMEOUT = 5
+CHECK_INTERVAL = 300
+```
+
+Isso representa um timeout de 5 segundos por requisição e uma nova verificação a cada 5 minutos.
+
+## Discord
+
+Os alertas são enviados em formato Embed com as principais informações da ocorrência.
+
+![Alerta do HttpVerify no Discord](assets/discord-alert.png)
+
+## Logs
+
+Os eventos são registrados em:
+
+```text
+httpverify.log
+```
+
+O arquivo mantém os detalhes técnicos das falhas para diagnóstico.
+
 ## Tecnologias
 
-- Python
-- requests
-- python-dotenv
+* Python
+* Requests
+* python-dotenv
+* Discord Webhook
+* Logging
+
+## Objetivo
+
+Projeto desenvolvido para praticar **monitoramento, automação, logging, integração com webhooks e conceitos de DevOps**.
 
 ## Autor
 
-[Antonio](https://devantonio.com.br)
+**Antonio**
+
+[devantonio.com.br](https://devantonio.com.br)
