@@ -66,10 +66,6 @@ Quando configurada, a API deve retornar:
     {
         "name": "Tasky",
         "url": "https://tasky.com"
-    },
-    {
-        "name": "MoneyControl",
-        "url": "https://moneycontrol.com"
     }
 ]
 ```
