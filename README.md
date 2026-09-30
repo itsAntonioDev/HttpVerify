@@ -1,51 +1,51 @@
 # HttpVerify
 
-Monitor simples de disponibilidade HTTP desenvolvido em Python.
+Simple HTTP availability monitor developed in Python.
 
-O HttpVerify verifica serviços em intervalos definidos, mede o tempo de resposta, registra eventos em log e envia alertas para o Discord quando um serviço apresenta falha.
+HttpVerify checks services at defined intervals, measures response time, logs events, and sends alerts to Discord when a service fails.
 
-## Funcionalidades
+## Features
 
-* Monitoramento periódico de URLs
-* Verificação de status HTTP
-* Medição de latência
-* Logging em arquivo
-* Alertas via Discord Webhook
-* Configuração por `.env`
-* Carregamento opcional de serviços por API
-* Fallback para serviços configurados localmente
+* Periodic URL monitoring
+* HTTP status verification
+* Latency measurement
+* File logging
+* Discord Webhook alerts
+* `.env` configuration
+* Optional service loading via API
+* Fallback to locally configured services
 
-## Fluxo
+## Flow
 
 ```text
-Serviço → Requisição HTTP → Status
-                         ├─ OK
-                         └─ Falha → Log + Discord
+Service → HTTP Request → Status
+                      ├─ OK
+                      └─ Failure → Log + Discord
 ```
 
-## Configuração
+## Configuration
 
-Instale as dependências:
+Install the dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Crie um `.env` na raiz:
+Create a `.env` file in the root:
 
 ```env
-DISCORD_WEBHOOK_URL=sua_url_do_webhook
+DISCORD_WEBHOOK_URL=your_webhook_url
 API_PROJECTS_URL=
 ```
 
-`API_PROJECTS_URL` é opcional. Sem ela, os serviços são carregados de `SERVICES` no código.
+`API_PROJECTS_URL` is optional. Without it, services are loaded from `SERVICES` in the code.
 
-### Serviços
+### Services
 
 ```python
 SERVICES = [
     {
-        "name": "Meu Portfólio",
+        "name": "My Portfolio",
         "url": "https://devantonio.com.br"
     },
     {
@@ -55,9 +55,9 @@ SERVICES = [
 ]
 ```
 
-### API de serviços
+### Services API
 
-Quando configurada, a API deve retornar:
+When configured, the API should return:
 
 ```json
 [
@@ -68,46 +68,43 @@ Quando configurada, a API deve retornar:
 ]
 ```
 
-Se a API falhar, o monitor utiliza a lista local como fallback.
+If the API fails, the monitor uses the local list as a fallback.
 
-## Execução
+## Execution
 
 ```bash
 python HttpVerify.py
 ```
 
-Configuração padrão:
+Default configuration:
 
 ```python
 TIMEOUT = 5
 CHECK_INTERVAL = 300
 ```
 
-Isso representa um timeout de 5 segundos por requisição e uma nova verificação a cada 5 minutos.
+This represents a 5-second timeout per request and a new check every 5 minutes.
 
 ## Discord
 
-Os alertas são enviados em formato Embed com as principais informações da ocorrência.
+Alerts are sent as Embeds containing the main details of the incident.
 
-![Alerta do HttpVerify no Discord](assets/discord-alert.png)
+![HttpVerify Alert on Discord](assets/discord-alert.png)
 
 ## Logs
 
-Os eventos são registrados em:
+Events are recorded in:
 
 ```text
 httpverify.log
 ```
 
-O arquivo mantém os detalhes técnicos das falhas para diagnóstico.
+The file keeps the technical details of failures for diagnosis.
 
-## Tecnologias
+## Technologies
 
 * Python
 * Requests
 * python-dotenv
 * Discord Webhook
 * Logging
-
-
-
