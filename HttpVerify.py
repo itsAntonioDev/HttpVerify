@@ -13,10 +13,10 @@ CHECK_INTERVAL = 300
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL", "")
 API_PROJECTS_URL = os.getenv("API_PROJECTS_URL", "")
 
-# Serviços monitorados localmente
+# Locally monitored services
 SERVICES = [
     {
-        "name": "Meu Portfólio",
+        "name": "My Portfolio",
         "url": "https://devantonio.com.br"
     },
     {
@@ -24,12 +24,12 @@ SERVICES = [
         "url": "https://google.com"
     },
     {
-        "name": "Teste Fora do Ar",
+        "name": "Offline Test",
         "url": "https://issonaoexiste123456.com"
     }
 ]
 
-# Configuração dos logs
+# Logging configuration
 logging.basicConfig(
     filename="httpverify.log",
     level=logging.INFO,
@@ -44,19 +44,19 @@ def send_discord_alert(
     message,
     elapsed=None
 ):
-    # Evita enviar requisições sem webhook configurado
+    # Skip requests when no webhook is configured
     if not DISCORD_WEBHOOK_URL:
         logging.warning(
-            "DISCORD_WEBHOOK_URL não configurada."
+            "DISCORD_WEBHOOK_URL is not configured."
         )
         return
 
-    # Define a cor do alerta de acordo com o status
+    # Set the alert color based on the status
     color = 15158332 if status == "OFFLINE" else 16753920
 
     fields = [
         {
-            "name": "Serviço",
+            "name": "Service",
             "value": service_name,
             "inline": True
         },
@@ -66,7 +66,7 @@ def send_discord_alert(
             "inline": True
         },
         {
-            "name": "Horário",
+            "name": "Time",
             "value": datetime.now().strftime(
                 "%d/%m/%Y %H:%M:%S"
             ),
@@ -79,16 +79,16 @@ def send_discord_alert(
         }
     ]
 
-    # Mostra a latência quando a requisição recebeu resposta
+    # Show latency when the request received a response
     if elapsed is not None:
         fields.append({
-            "name": "Tempo de resposta",
+            "name": "Response time",
             "value": f"{elapsed} ms",
             "inline": True
         })
 
     fields.append({
-        "name": "Detalhes",
+        "name": "Details",
         "value": message,
         "inline": False
     })
@@ -97,11 +97,11 @@ def send_discord_alert(
         "username": "HttpVerify",
         "embeds": [
             {
-                "title": "HttpVerify — Alerta de Monitoramento",
+                "title": "HttpVerify — Monitoring Alert",
                 "color": color,
                 "fields": fields,
                 "footer": {
-                    "text": "HttpVerify • Monitoramento de serviços"
+                    "text": "HttpVerify • Service monitoring"
                 },
                 "timestamp": datetime.utcnow().isoformat() + "Z"
             }
@@ -118,21 +118,21 @@ def send_discord_alert(
         response.raise_for_status()
 
         logging.info(
-            f"Alerta enviado ao Discord: {service_name}"
+            f"Alert sent to Discord: {service_name}"
         )
 
     except requests.exceptions.RequestException as e:
         logging.error(
-            f"Falha ao enviar alerta para o Discord: {e}"
+            f"Failed to send alert to Discord: {e}"
         )
 
 
 def get_services():
-    """Busca os serviços monitorados pela API configurada."""
+    """Fetch monitored services from the configured API."""
 
     if not API_PROJECTS_URL:
         logging.warning(
-            "API_PROJECTS_URL não configurada."
+            "API_PROJECTS_URL is not configured."
         )
         return []
 
@@ -148,32 +148,32 @@ def get_services():
 
         if not isinstance(services, list):
             logging.error(
-                "A API retornou um formato inválido."
+                "The API returned an invalid format."
             )
             return []
 
         logging.info(
-            f"{len(services)} serviços carregados pela API."
+            f"{len(services)} services loaded from the API."
         )
 
         return services
 
     except requests.exceptions.RequestException as e:
         logging.error(
-            f"Falha ao buscar serviços pela API: {e}"
+            f"Failed to fetch services from the API: {e}"
         )
         return []
 
     except ValueError as e:
         logging.error(
-            f"Resposta JSON inválida da API: {e}"
+            f"Invalid JSON response from the API: {e}"
         )
         return []
 
 
 def check_service(service):
     try:
-        # Inicia a contagem para medir a latência
+        # Start the timer to measure latency
         start = time.time()
 
         response = requests.get(
@@ -186,7 +186,7 @@ def check_service(service):
             2
         )
 
-        # Status 200 indica uma resposta normal
+        # Status 200 indicates a normal response
         if response.status_code == 200:
             msg = (
                 f"{service['name']} ONLINE - "
@@ -198,9 +198,9 @@ def check_service(service):
 
             return True
 
-        # Outros códigos HTTP são tratados como alerta
+        # Treat other HTTP codes as alerts
         msg = (
-            f"{service['name']} respondeu "
+            f"{service['name']} returned "
             f"HTTP {response.status_code}"
         )
 
@@ -212,8 +212,8 @@ def check_service(service):
             status=f"HTTP {response.status_code}",
             url=service["url"],
             message=(
-                "O serviço respondeu, mas retornou "
-                "um código HTTP diferente de 200."
+                "The service responded but returned "
+                "an HTTP status code other than 200."
             ),
             elapsed=elapsed
         )
@@ -221,23 +221,23 @@ def check_service(service):
         return False
 
     except requests.exceptions.RequestException as e:
-        # Guarda o erro técnico completo no arquivo de log
+        # Save the full technical error in the log file
         logging.error(
-            f"{service['name']} FORA DO AR - {e}"
+            f"{service['name']} OFFLINE - {e}"
         )
 
         print(
-            f"{service['name']} FORA DO AR"
+            f"{service['name']} OFFLINE"
         )
 
-        # Envia uma mensagem resumida para o Discord
+        # Send a brief message to Discord
         send_discord_alert(
             service_name=service["name"],
             status="OFFLINE",
             url=service["url"],
             message=(
-                "O serviço não respondeu corretamente "
-                "dentro do tempo limite ou não pôde ser acessado."
+                "The service did not respond correctly "
+                "within the timeout period or could not be reached."
             )
         )
 
@@ -245,23 +245,23 @@ def check_service(service):
 
 
 def run_checks():
-    # Usa a API quando configurada; caso contrário, usa a lista local
+    # Use the API when configured; otherwise, use the local list
     if API_PROJECTS_URL:
         services = get_services()
 
-        # Se a API falhar, mantém a lista local como fallback
+        # Fall back to the local list if the API fails
         if not services:
             logging.warning(
-                "API indisponível. Usando serviços locais."
+                "API unavailable. Using local services."
             )
             services = SERVICES
     else:
         services = SERVICES
 
     print()
-    print("HttpVerify - Verificação de Serviços")
+    print("HttpVerify - Service Check")
     print(
-        f"Data: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}"
+        f"Date: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}"
     )
 
     total = len(services)
@@ -274,45 +274,45 @@ def run_checks():
         else:
             offline += 1
 
-    # Exibe o resumo da verificação
+    # Display the check summary
     print()
-    print(f"Serviços monitorados: {total}")
+    print(f"Monitored services: {total}")
     print(f"Online: {online}")
-    print(f"Com problemas: {offline}")
+    print(f"With issues: {offline}")
     print("Log: httpverify.log")
     print()
 
 
 def main():
-    print("HttpVerify iniciado.")
+    print("HttpVerify started.")
     print(
-        f"Intervalo: {CHECK_INTERVAL // 60} minutos"
+        f"Interval: {CHECK_INTERVAL // 60} minutes"
     )
     print(
-        f"Timeout: {TIMEOUT} segundos"
+        f"Timeout: {TIMEOUT} seconds"
     )
-    print("Pressione CTRL+C para parar.")
+    print("Press CTRL+C to stop.")
     print()
 
     while True:
         try:
             run_checks()
 
-            # Aguarda até a próxima verificação
+            # Wait until the next check
             print(
-                f"Próxima verificação em "
-                f"{CHECK_INTERVAL // 60} minutos."
+                f"Next check in "
+                f"{CHECK_INTERVAL // 60} minutes."
             )
 
             time.sleep(CHECK_INTERVAL)
 
         except KeyboardInterrupt:
-            # Permite encerrar o monitoramento com CTRL+C
+            # Allow monitoring to stop with CTRL+C
             print()
-            print("HttpVerify encerrado.")
+            print("HttpVerify stopped.")
 
             logging.info(
-                "HttpVerify encerrado pelo usuário."
+                "HttpVerify stopped by the user."
             )
 
             break
